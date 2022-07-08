@@ -1,65 +1,65 @@
-# Abschlussaufgabe
+# Exam
 
-In der Abschlussaufgabe erweitern Sie den Mapper um k-mer-Spektrum basierte Fehlerkorrektur, um trotz Sequenzierfehlern im Datensatz belastbare Aussagen treffen zu können. Dann nutzen Sie Ihren Code, um bei vier Infektionen jeweils die zur Behandlung einsetzbaren Antibiotika vorzuschlagen. 
+In the exam task you will extend your mapper with a k-mer spectrum error correction algorithm in order to deal with sequencing errors in the dataset. Then, you will use your code to suggest the correct antibiotic for the treatment of four patients. 
 
-Sie finden zu diesem Zweck in dem repository bereits die Musterlösung für die Mapping-Aufgabe. Sie können diese aber sehr gerne durch Ihre eigene Lösung aus der letzten Aufgabe ersetzen - ich denke, es macht mehr Spaß, am eigenen Code zu arbeiten! 
+In order to help you with this, the repository already contains a solution for last week's mapper task. Of course, I encourage you to use your own code from last week instead - I think it is much more fun to work with ones own code.
 
-## Benotung
+## Grading
 
-Zunächst aber die für Sie vermutlich besonders interessante Information, wo Sie Ihre Punkte herbekommen. Neben der Implementation gibt es Punkte für:
+You will get most points for the implementation. However, there are also other graded tasks:
 
-* Die Tablet-Aufgabe beim SAM-Export: Für die Identifikation der korrekten Basenaustausche in dem Mapping gibt es 5 Punkte.
-* Für die erste Antibiotika-Empfehlung gibt es 10 Punkte (2.5 pro Person)
-* Für die zweite Antibiotika-Empfehlung gibt es 10 Punkte (2.5 pro Person)
-* Für die Erklärung der Unterschiede gibt es 10 Punkte
+* 5 points for identifying the correct mutations in the Tablet task
+* 10 points for the suggested antibiotics based on the mapping without error correction (2.5 points per patient)
+* 10 points for the suggested antibiotics based on the mapping with error correction (2.5 points per patient)
+* 10 points for explaining the differences (or absence thereof) between the two results
 
-Insgesamt gibt es also für den Verständnisteil 35 Punkte zu bekommen, die restlichen 65 Punkte bekommen Sie für die Implementation.
+Thus, you can get up to 65 points for the implementation and up to 35 points for the theoretical part, up to a total of 100 points.
 
-## Visualisierung von Mappings
+## Visualizing the mapping
 
-Mappen Sie zunächst die Datei [data/fluA_reads.fasta](data/fluA_reads.fasta) auf [data/fluA_reads.fasta](data/fluA.fasta) und speichern Sie das Ergebnis als fluA_mapping.sam. 
+First, please map the reads from [data/fluA_reads.fasta](data/fluA_reads.fasta) onto [data/fluA_reads.fasta](data/fluA.fasta) and save the result as fluA_mapping.sam. 
 
-Laden Sie dann das Programm [Tablet](https://ics.hutton.ac.uk/tablet/) herunter und öffnen Sie (Klick auf den Button "Open Assembly" oben links) die Dateien fluA_mapping.sam sowie die Referenz [data/fluA_reads.fasta](data/fluA.fasta). Sie müssten dann eine Ansicht erhalten wie in diesem Bild:
+Then, load the mapping fluA_mapping.sam and the reference [data/fluA_reads.fasta](data/fluA.fasta) into [Tablet](https://ics.hutton.ac.uk/tablet/) (by clicking on the button "Open Assembly" on the top left). You should obtain a visualization similar to this:
 
 ![t1](Bilder/Tablet1.png)
 
-Sie erkennen oben eine schematische Ansicht der gesamten Referenz mit den darauf gemappten Reads, dadrunter sehen Sie eine Detailansicht: Zuerst die in Aminosäuren translatierte Sequenz, dann die Nukleotidsequenz der Referenz, und dann die einzelnen Reads.
+This shows you a schematic overview of the entire reference with the reads mapped to it on the top, underneath you can see a detailed view: First the whole reference sequence translated into amino acids, underneath the nucleotide sequence of the reference, and then the reads.
 
-Wenn Sie den Mauszeiger über eine Base halten, bekommen Sie eine Information über den Read. Auf der Koordinatenachse zwischen Referenzsequenz und Reads wird zudem in roter Farbe die Position angezeigt - in diesem Fall ist zu erkennen, dass die erste Base "T" aus dem Read "Read_95" an Position 10 der Referenzsequenz gemappt wurde.
+If you hover your mouse over a read, you get some information about that read. Additionally, the coordinate axis between the reference and the reads shows the position of the base you are hovering over as a red number. In this example, you can see that the first base "T" in the read "Read_95" was mapped to position 10 of the reference sequence.
 
-Wählen Sie im Reiter "Color Schemes" die Option "Variants", werden alle Basen der Reads, die mit der Referenzsequenz übereinstimmen, ausgegraut:
+If you choose the option "Variants" in the "Color Schemes" tab, all read bases that are identical to the reference sequence are greyed out:
 
 ![t2](Bilder/Tablet2.png)
 
-Sie erkennen nun oben in der Übersicht zwei rote Streifen, die Unterschiede zu der Referenzsequenz anzeigen. Bitte beachten Sie, dass es mehr Basen in der Referenz gibt als Pixelspalten auf dem Bildschirm und somit nicht zwingender Maßen alle Unterschiede in dieser Übersicht sichtbar sind!
+Differences to the reference sequence in the entire mapping are visualized in the overview as red stripes. Please mind that, since there are more bases in the reference than there are pixel columns on the screen, not all differences might be visible here!
 
-### Tablet-Aufgabe
+### Tablet task
 
-Tragen Sie hier bitte in dem Format ```<Referenz-Base><Position><Neue Base>``` ein, welche Mutationen Sie in dem Mapping erkennen können (```T10A``` würde also beispielsweise bedeuten, dass in der Referenz an Position 10 die Base T steht, es aber laut der Reads an dieser Position eine Mutation zu A gibt):
+Please write down in the following quote block which mutations you can find in the mapping, using the format `<reference base><position><new base>` (e.g. `T10A` would mean that the reference has a "T" at position 10, but you think that the reads suggest that there is an "A" at that position in the sequenced genome):
 
-```text
+```
 Mutation 1:
 Mutation 2:
 ...
 Mutation n:
 ```
 
-## Antibiotika-Resistenzen
+## Antibiotica resistances
 
-Eine Aufgabe, bei der die Erkennung solcher Mutationen besonders wichtig ist, ist die Behandlung bekterieller Infektionen. Bakterien können Resistenzen gegen Antibiotika entwickeln - die Gabe solcher Antibiotika kann dann nicht mehr zur Heilung beitragen. Es gibt aber mittlerweile viele gut untersuchte Zusammenhänge zwischen Mutationen in bestimmten Genen und dadurch vermittelten Antibiotikaresistenzen. Entsprechend kann vor einer Behandlung eine Sequenzierung des Bakteriums erfolgen, und anhand der vorhandenen Mutationen kann eine Behandlungsentscheidung getroffen werden.
+Recognizing such mutations is especially important when diagnosing bacterial infections. Bacteria can develop resistances against antibiotics - prescribing such an antibiotic will then not heal the patient. However, many mutations that cause the development of antibiotic resistances are already known. Accordingly, sequencing and analysing the genome of a bacterium before deciding which antibiotic to prescribe to a patient can allow prescribing an antibiotic against which the bacterium has no resistances.
 
-Ein besonders prominentes Beispiel ist das Bakterium Staphylococcus aureus, welches schnell Antibiotikaresistenzen ansammelt. Infektionen mit multiresistenten S. aureus (MRSA) stellen die Medizin vor eine große Herausforderung, da im schlimmsten Fall keine der verfügbaren Antibiotika mehr gegen sie funktionieren (bzw. nur noch sogenannte "drugs of last resort" funktionieren - Antibiotika, die für besonders schwere Fälle zurückgehalten werden, da durch einen stark reglementierten Einsatz Bakterien noch keinem Evolutionsdruck ausgesetzt wurden, um gegen diese Resistenzen zu entwickeln). 
+Staphylococcus aureus is an especially prominent example of this, since it is able to accumulate antibiotic resistances quickly. Infections with multiresistant S. aureus (MRSA) pose a major challenge in medicine, since in the worst case none of the available antibiotics might work against the infection (or the only antibiotics that still work might be so-called "drugs of last resort" - antibiotics that are held back for especially critical cases in order to avoid exposing bacteria to evolutionary pressure that might allow them to develop resistances against this last line of defence).
 
-In dieser Aufgabe untersuchen Sie die Proben von 4 mit S. aureus infizierten Personen auf Mutationen im rpoB-Gen des Bakteriums. Es stehen zur Behandlung die folgenden zwei Antibiotika zur Verfügung - in Klammern steht jeweils die Priorität, mit der sie eingesetzt werden sollten, wenn möglich sollte das Antibiotikum mit der höchsten Priorität eingesetzt werden:
+In this task, you will analyze sequences of the rpoB gene from samples from four patients infected with S. aureus. The following antibiotics are available for treatment, with their priority indicated in braces after the name. To treat a patient, the antibiotic with the highest priority that the bacterium has no resistance against should be used:
 
 * Daptomycin (1)
 * Rifampicin (2)
 
-Es sind Ihnen zudem die folgenden drei Mutationen bekannt, die Resistenzen vermitteln:
+Additionally, the following mutations are known that confer resistances:
 
-* C1862A: Resistenz gegen Daptomycin
-* T2858G: Resistenz gegen Daptomycin
-* C1402A: Resistenz gegen Rifampicin
+* C1862A: Resistance against Daptomycin
+* T2858G: Resistance against Daptomycin
+* C1402A: Resistance against Rifampicin
 
 Mappen Sie die Read-Sequenzen der 4 Personen ([data/patient1.fasta](data/patient1.fasta) - [data/patient4.fasta](data/patient4.fasta)) auf die rpoB-Referenz ([data/rpoB.fasta](data/rpoB.fasta)) und tragen Sie hier ein, welche Mutation(en) Sie identifizieren konnten und welches Antibiotikum Sie empfehlen würden:
 
