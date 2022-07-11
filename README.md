@@ -90,7 +90,7 @@ Enthält aber einer der Reads einen Fehler (in diesem Fall wird die 3. Base von 
 
 Es kommen durch den Fehler drei neue k-mere hinzu, die jeweils nur ein Mal auftreten.
 
-Anhang dieser Information kann eine Korrektur erfolgen: Es wird ein Schwellenwert definiert, ab dem ein k-mer als potenziell fehelrhaft eingestuft wird. Für jedes k-mer, welches seltener als dieser Schwellenwert vorkommt, werden folgende Schritte durchlaufen:
+Anhand dieser Information kann eine Korrektur erfolgen: Es wird ein Schwellenwert definiert, ab dem ein k-mer als potenziell fehelrhaft eingestuft wird. Für jedes k-mer, welches seltener als dieser Schwellenwert vorkommt, werden folgende Schritte durchlaufen:
 
 * Für jede Base X aus dem k-mer:
     * Für jede mögliche Base Y (A, G, T und C):
