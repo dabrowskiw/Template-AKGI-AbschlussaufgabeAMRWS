@@ -61,71 +61,71 @@ Additionally, the following mutations are known that confer resistances:
 * T2858G: Resistance against Daptomycin
 * C1402A: Resistance against Rifampicin
 
-Mappen Sie die Read-Sequenzen der 4 Personen ([data/patient1.fasta](data/patient1.fasta) - [data/patient4.fasta](data/patient4.fasta)) auf die rpoB-Referenz ([data/rpoB.fasta](data/rpoB.fasta)) und tragen Sie hier ein, welche Mutation(en) Sie identifizieren konnten und welches Antibiotikum Sie empfehlen würden:
+Please map the read sequences of the 4 patients ([data/patient1.fasta](data/patient1.fasta) - [data/patient4.fasta](data/patient4.fasta)) onto the rpoB reference ([data/rpoB.fasta](data/rpoB.fasta)) and look at the mapping results. Then, write down in the blockquote below which mutations relevant to antibiotics resistances you have been able to identify and which antibiotic you would recommend for each of the patients based on those results:
 
 ```text
-Person 1 - Mutation(en): <IHRE MUTATIONEN>, Empfehlung: <IHRE ANTIBIOTIKUMS-EMPFEHLUNG> 
-Person 2 - Mutation(en): <IHRE MUTATIONEN>, Empfehlung: <IHRE ANTIBIOTIKUMS-EMPFEHLUNG> 
-Person 3 - Mutation(en): <IHRE MUTATIONEN>, Empfehlung: <IHRE ANTIBIOTIKUMS-EMPFEHLUNG> 
-Person 4 - Mutation(en): <IHRE MUTATIONEN>, Empfehlung: <IHRE ANTIBIOTIKUMS-EMPFEHLUNG> 
+Person 1 - Mutation(s): <YOUR MUTATIONS>, Recommendation: <YOUR RECOMMENDED ANTIBIOTIC> 
+Person 2 - Mutation(s): <YOUR MUTATIONS>, Recommendation: <YOUR RECOMMENDED ANTIBIOTIC> 
+Person 3 - Mutation(s): <YOUR MUTATIONS>, Recommendation: <YOUR RECOMMENDED ANTIBIOTIC> 
+Person 4 - Mutation(s): <YOUR MUTATIONS>, Recommendation: <YOUR RECOMMENDED ANTIBIOTIC> 
 ```
 
-Lassen Sie sich bitte von Unterschieden zur Referenzsequenz, die nur in einzelnen Reads vorkommen, nicht verwirren - das ist ein realistischer Datensatz und die Reads enthalten Sequenzierfehler.
+Do not let yourself be confused by differences to the reference sequence that occur only in single reads - this is a real dataset and the reads contain sequencing errors.
 
-## Fehlerkorrektur
+## Error correction
 
-Wie Ihnen in der Identifikation der Antibiotikaresistenzen aufgefallen sein könnte, sind die realen Reads mit Sequenzierfehlern behaftet. Diese können die Analyse erschweren oder gar zu Fehlinterpretationen der Daten führen.
+As you might have noticed during the analysis in the task above, those real sequencing reads contain sequencing errors. Such sequencing errors can make the analysis harder or lead to misinterpretation of the data.
 
-Eine Möglichkeit zur Korrektur dieser Fehler ist das k-mer-Spektrum. Dabei wird davon ausgegangen, dass durch eine große Coverage mit großteils korrekten Reads jedes sequenzierte k-mer mehrmals in unterschiedlichen Reads repräsentiert sein sollte. Kommt ein k-mer deutlich seltener vor, als die anderen k-mere, ist es vermutlich nicht auf eine Mutation (die ja von mehreren Reads abgedeckt sein sollte und deren k-mer entsprechend mehrmals vorkommen sollte) sondern auf einen Sequenzierfehler zurückzuführen.
+One way of correcting errors in reads prior to the analysis is based on the k-mer spectrum. This method assumes that, due to a high sequencing coverage, every k-mer from the genome should be present multiple times since it should be covered by multiple reads. If a k-mer appears much fewer times in the dataset than the other k-mers, it is most likely due to a sequencing error (since, instead of being present in all reads covering the respective part of the genome, it is present only in the erroneous read).
 
-Nehmen wir als Beispiel ein kurzes Genom, welches fehlerfrei sequenziert wird, und das 3-mer-Spektrum dazu: 
+For instance, let's take a look at a short genome sequenced without sequencing errors and the corresponding 3-mer spectrum:
 
 ![sp1](Bilder/Spectrum1.png)
 
-In diesem Fall wurde das Genom mit 5 fehlerfreien Reads abgedeckt, es ergeben sich 4 3-mere mit den Häufigkeiten 2, 4, 4 und 2.
+In this case, the genome has been fully covered by 5 error-free reads, and the resulting k-mers have frequencies of 2, 4, 4, and 2.
 
-Enthält aber einer der Reads einen Fehler (in diesem Fall wird die 3. Base von Read 2 fehlerhafter Weise als C gelesen), verändert sich das Spektrum:
+If, however, one of the reads contains an error (in this case, the 3rd base of read 2 is read as C instead of T), the spectrum changes:
 
 ![sp2](Bilder/Spectrum2.png)
 
-Es kommen durch den Fehler drei neue k-mere hinzu, die jeweils nur ein Mal auftreten.
+Due to the error, three new k-mers appear in the dataset, and each of those only has a frequency of 1.
 
-Anhang dieser Information kann eine Korrektur erfolgen: Es wird ein Schwellenwert definiert, ab dem ein k-mer als potenziell fehelrhaft eingestuft wird. Für jedes k-mer, welches seltener als dieser Schwellenwert vorkommt, werden folgende Schritte durchlaufen:
+Based on this information, the erroneous k-mers can be corrected. First, a frequency cutoff has to be defined, so that all k-mers occurring at a frequency lower than that cutoff are assumed to be erroneous. For each such k-mer, the following steps are performed:
 
-* Für jede Base X aus dem k-mer:
-    * Für jede mögliche Base Y (A, G, T und C):
-        * Generiere ein Kandidaten-k-mer indem die Base X durch die Base Y ersetzt wird
-        * Falls das Kandidaten-k-mer auch im Datensatz vorkommt und zwar häufiger als der Schwellenwert: Merke es als mögliche Korrektur
-* Falls Kandidaten-k-mere gefunden wurden: Ersetze das k-mer durch das Kandidaten-k-mer welches am häufigsten im Datensatz vorkommt (bei zwei Kandidaten-k-meren mit der gleichen Häufigkeit wähle zufällig eins davon)
+* For each base X in the k-mer:
+  * For each possible base Y (A, G, T and C):
+    * Generate a candidate k-mer by exchanging the base X with the base Y
+    * If that candidate k-mer also occurs in the dataset, and its frequency is higher than the cutoff: Remember that candidate as a possible correction for the erroneous k-mer
+* If a candidates were found: Replace that k-mer with the candidate that occurs in the dataset at the highest frequency. If multiple candidates exist that have the same frequency, choose one at random.
 
-Für das Mapping müssen die so identifizierten korrigierbaren k-mere in allen Reads ersetzt werden, in denen sie vorkommen.
+In order to perform a mapping using a dataset corrected in this way, the correctable k-mers identified in this way need to be replaced by their correct versions in the reads.
 
 ### Implementation
 
-Implementieren Sie die k-mer-Spektrum-Fehlerkorrektur wie folgt.
+Implement the k-mer spectrum error correction as follows:
 
-Implementieren Sie zunächst eine Klasse ```ReadPolisher``` mit den folgenden Methoden:
-* ```__init__(self, kmerlen)```: Constructor, bekommt die zu verwendende k-mer-Länge
-* ```add_read(self, readseq)```: Fügt die übergebene Readsequenz dem k-mer-Spektrum hinzu
-* ```get_replacements(self, minfreq)```: Berechnet für die k-mere, die seltener als ```minfreq``` im k-mer-Spektrum vorkommen, die mögliche Korrektur und gibt ein entsprechendes dictionary zurück. Darin sind keys die korrigierbaren k-mere, values sind die Korrekturen (in dem obigen Beispiel wäre also z.B. bei minfreq=2 ein mögliches key-value-Paar "GCT":"GTT", welches aussagt, dass das k-mer "GCT" durch das k-mer "GTT" ersetzt werden soll)
+First, implement a class `ReadPolisher` with the following methods:
+* `__init__(self, kmerlen)`: Constructor that takes the k-mer length to be used in the error correction as sole argument
+* ```add_read(self, readseq)```: Adds the k-mers from `readseq` to the k-mer spectrum
+* `get_replacements(self, minfreq)`: Calculates the possible corrections for the k-mers from the spectrum that occur less often than `minfreq` and returns the results as a dictionary. The keys of that dictionary are the k-mers that can be corrected, the values are the corrections. In the above example, with minfreq=2 a key-value pair in that dictionary would be "GCT":"GTT", meaning that the k-mer GCT should be corrected to "GTT"
   
-Erweitern Sie zudem die Klasse ```Read``` um die Methode ```replace_kmers(self, replacements)```, welche die dictionary aus ```get_replacements``` bekommt und alle darin als key vorkommenden k-mere, die in dem Read vorhanden sind, durch den jeweiligen value ersetzt. Das ist zwar nicht die effizienteste Variante (effizienter wäre es, sich in ```ReadPolisher``` die Information zu merken, in welchen Reads welche k-mere vorkommen und dann nur dort die Ersetzungen vorzunehmen), aber das würde die Abschlussaufgabe zu lang machen.
+Additionally, please extend the class `Read` by a method `replace_kmers(self, replacements)`. This method should take the dictionary returned by `get_replacements` and replace all key k-mers from that dictionary with the respective values from the dictionary in the read sequence. While this is not the most efficient way (it would be more efficient to remember in `ReadPolisher` which reads the k-mer actually occurs in) it is the simplest approach.
 
-### Anwendung
+### Application
 
-Verwenden Sie Ihre Read-Korrektur, um nochmal die Read-Sequenzen der 4 Personen ([data/patient1.fasta](data/patient1.fasta) - [data/patient4.fasta](data/patient4.fasta)) auf die rpoB-Referenz ([data/rpoB.fasta](data/rpoB.fasta)) zu mappen. Sehen Sie einen Unterschied? Welche k-mer-Längen und cutoffs erscheinen Ihnen sinnvoll? 
+Use your read correction to map the read sequences of the four patients ([data/patient1.fasta](data/patient1.fasta) - [data/patient4.fasta](data/patient4.fasta)) to the rpoB reference ([data/rpoB.fasta](data/rpoB.fasta)) again. Can you see a difference between mapping with and without error correction? Which k-mer lengths and which cutoffs seem to make sense?
 
-Tragen Sie hier ein, welche Mutation(en) Sie identifizieren konnten und welches Antibiotikum Sie nun empfehlen würden (verwenden Sie die Parameter, die Sie am sinnvollsten finden, probieren Sie aber zumindest ein Mal bei [data/patient2.fasta](data/patient2.fasta) eine k-mer-Länge von 15 und einen frequency cutoff von 3 aus):
+Please enter in the blockquote below which mutations you can identify now, after error correction, and which antibiotics you would recommend now. Use the parameters that seem to make sense to you, but definitely try a k-mer length of 15 and a frequency cutoff of 3 for [data/patient2.fasta](data/patient2.fasta):
 
 ```text
-Person 1 - Mutation(en): <IHRE MUTATIONEN>, Empfehlung: <IHRE ANTIBIOTIKUMS-EMPFEHLUNG> 
-Person 2 - Mutation(en): <IHRE MUTATIONEN>, Empfehlung: <IHRE ANTIBIOTIKUMS-EMPFEHLUNG> 
-Person 3 - Mutation(en): <IHRE MUTATIONEN>, Empfehlung: <IHRE ANTIBIOTIKUMS-EMPFEHLUNG> 
-Person 4 - Mutation(en): <IHRE MUTATIONEN>, Empfehlung: <IHRE ANTIBIOTIKUMS-EMPFEHLUNG> 
+Person 1 - Mutation(s): <YOUR MUTATIONS>, Recommendation: <YOUR RECOMMENDED ANTIBIOTIC> 
+Person 2 - Mutation(s): <YOUR MUTATIONS>, Recommendation: <YOUR RECOMMENDED ANTIBIOTIC> 
+Person 3 - Mutation(s): <YOUR MUTATIONS>, Recommendation: <YOUR RECOMMENDED ANTIBIOTIC> 
+Person 4 - Mutation(s): <YOUR MUTATIONS>, Recommendation: <YOUR RECOMMENDED ANTIBIOTIC> 
 ```
 
-Sehen Sie einen Unterschied in den Empfehlungen zu denen, die Sie ohne Fehlerkorrektur gegeben haben? Beschreiben Sie kurz, was der Unterschied ist, und wie dieser durch die Fehlerkorrektur zustande gekommen ist (kein Roman, 5-6 Sätze reichen aus):
+Can you see a difference between your recommendations now and those you gave after analysing the mapping without prior error correction? Please describe shortly (4-5 sentences should be sufficient) either where the differences come from (if you see any) or why there is no difference (if you don't see a difference):
 
 ```text
-Der Unterschied...
+The difference...
 ```
